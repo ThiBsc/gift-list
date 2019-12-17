@@ -1,2 +1,2 @@
 # giftlist
-A android application to manage gift between people
+An android application to manage gift between people
