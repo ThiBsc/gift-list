@@ -1,5 +1,6 @@
 package com.example.giftlist;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -43,11 +44,11 @@ public class MyListFragment extends ListFragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), CreateListActivity.class);
-                getActivity().startActivity(intent);
+                startActivityForResult(intent, 1);
             }
         });
-        listAdapter.add(new ListItem("Thibaut", "Noël 2020"));
-        listAdapter.add(new ListItem("Thibaut", "Anniversaire 2020"));
+        listAdapter.add(new ListItem("Thibaut", "Noël 2020", "azerty"));
+        listAdapter.add(new ListItem("Thibaut", "Anniversaire 2020", "qwerty"));
         listAdapter.getItem(0).addGift(new GiftItem("Valise eastpak", "https://www.eastpak.com/fr-fr/bagages-c140/tranverz-s-super-dreamy-pink-pEK61LA74+00+999.html", 1));
         listAdapter.getItem(0).addGift(new GiftItem("Raspberry pi 4", "https://www.kubii.fr/174-raspberry-pi-4", 2));
         listAdapter.getItem(1).addGift(new GiftItem("Licorne", "https://www.unicorn.fr/", 1));
@@ -70,7 +71,7 @@ public class MyListFragment extends ListFragment {
 
         Intent intent = new Intent(getActivity(), CreateListActivity.class);
         intent.putExtra("list", listItem);
-        getActivity().startActivity(intent);
+        startActivityForResult(intent, 1);
     }
 
     @Override
@@ -90,5 +91,32 @@ public class MyListFragment extends ListFragment {
                 break;
         }
         return super.onContextItemSelected(item);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == 1 && resultCode == Activity.RESULT_OK){
+            // From CreateListActivity
+            // replace the old by the new if different
+            ListItem list = (ListItem) data.getSerializableExtra("list");
+            int idx = 0;
+            boolean found = false;
+            while (idx < listAdapter.getCount() && !found){
+                if (list.equals(listAdapter.getItem(idx++))){
+                    idx--;
+                    found = true;
+                }
+            }
+            if (found){
+                // Remove the last
+                listAdapter.remove(list);
+                listAdapter.insert(list, idx);
+            } else {
+                listAdapter.insert(list, 0);
+            }
+
+        }
     }
 }

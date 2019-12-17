@@ -9,6 +9,7 @@
     <string name="newgift_btntext">Ajouter un cadeau</string>
 
     <string name="missing_namegift">Vous devez renseigner au moins un nom</string>
+    <string name="missing_namelist">Vous devez renseigner au moins un nom</string>
 
     <string name="create_list">Créer une liste</string>
     <string name="delete">Supprimer</string>

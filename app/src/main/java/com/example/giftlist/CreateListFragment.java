@@ -12,6 +12,8 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -24,6 +26,7 @@ import androidx.fragment.app.Fragment;
  */
 public class CreateListFragment extends Fragment {
 
+    private TextView id;
     private EditText nameList;
     private Button btnAddGift;
     private ListView giftList;
@@ -34,6 +37,7 @@ public class CreateListFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_createlist, container, false);
 
+        id = view.findViewById(R.id.listId);
         nameList = view.findViewById(R.id.listName);
         btnAddGift = view.findViewById(R.id.btnAddGift);
         giftList = view.findViewById(R.id.myNewlist_gistList);
@@ -47,6 +51,25 @@ public class CreateListFragment extends Fragment {
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), CreateGiftActivity.class);
                 getActivity().startActivityForResult(intent, 1);
+            }
+        });
+
+        saveListBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (nameList.getText().length() == 0){
+                    Toast.makeText(getContext(), R.string.missing_namelist, Toast.LENGTH_SHORT).show();
+                } else {
+                    ListItem list = new ListItem("Thibaut", nameList.getText().toString(), id.getText().toString());
+                    for (int i=0; i<giftList.getCount(); i++){
+                        list.addGift(giftAdapter.getItem(i));
+                    }
+
+                    Intent data = new Intent();
+                    data.putExtra("list", list);
+                    getActivity().setResult(Activity.RESULT_OK, data);
+                    getActivity().finish();
+                }
             }
         });
 

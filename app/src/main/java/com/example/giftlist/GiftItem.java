@@ -2,6 +2,8 @@ package com.example.giftlist;
 
 import java.io.Serializable;
 
+import androidx.annotation.Nullable;
+
 /**
  * Describe the content of a gift in a list
  */
@@ -14,6 +16,12 @@ public class GiftItem implements Serializable {
         this.name = name;
         this.url = url;
         this.amount = amount;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        GiftItem item = (GiftItem) obj;
+        return name.equals(item.getName()) && url.equals(item.getUrl()) && amount==item.getAmount();
     }
 
     public String getName() {

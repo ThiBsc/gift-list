@@ -35,16 +35,16 @@ public class CreateGiftFragment extends Fragment {
         saveGiftBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (nameGift.getText().length() == 0){
-                    Toast.makeText(getContext(), R.string.missing_namegift, Toast.LENGTH_SHORT).show();
-                } else {
-                    GiftItem gift = new GiftItem(nameGift.getText().toString(), urlGift.getText().toString(), Integer.parseInt(amountGift.getText().toString()));
+            if (nameGift.getText().length() == 0){
+                Toast.makeText(getContext(), R.string.missing_namegift, Toast.LENGTH_SHORT).show();
+            } else {
+                GiftItem gift = new GiftItem(nameGift.getText().toString(), urlGift.getText().toString(), Integer.parseInt(amountGift.getText().toString()));
 
-                    Intent data = new Intent();
-                    data.putExtra("gift", gift);
-                    getActivity().setResult(Activity.RESULT_OK, data);
-                    getActivity().finish();
-                }
+                Intent data = new Intent();
+                data.putExtra("gift", gift);
+                getActivity().setResult(Activity.RESULT_OK, data);
+                getActivity().finish();
+            }
             }
         });
 

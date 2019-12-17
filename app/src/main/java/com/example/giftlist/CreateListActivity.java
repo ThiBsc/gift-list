@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
@@ -26,11 +27,17 @@ public class CreateListActivity extends FragmentActivity {
         ListItem listItem = (ListItem) getIntent().getSerializableExtra("list");
 
         if (listItem != null){
+            // Set the name of the list
             EditText listName = findViewById(R.id.listName);
             listName.setText(listItem.getName());
 
+            // Set the gifts of the list
             ListView listView = findViewById(R.id.myNewlist_gistList);
             ((GiftAdapter)listView.getAdapter()).addAll(listItem.getGifts());
+
+            // Set the id of the list
+            TextView id = findViewById(R.id.listId);
+            id.setText(listItem.getId());
         }
     }
 
