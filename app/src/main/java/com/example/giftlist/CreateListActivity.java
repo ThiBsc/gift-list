@@ -1,6 +1,12 @@
 package com.example.giftlist;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -25,6 +31,18 @@ public class CreateListActivity extends FragmentActivity {
 
             ListView listView = findViewById(R.id.myNewlist_gistList);
             ((GiftAdapter)listView.getAdapter()).addAll(listItem.getGifts());
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == 1 && resultCode == Activity.RESULT_OK){
+            GiftItem gift = (GiftItem) data.getSerializableExtra("gift");
+
+            ListView listView = findViewById(R.id.myNewlist_gistList);
+            ((GiftAdapter)listView.getAdapter()).add(gift);
         }
     }
 }

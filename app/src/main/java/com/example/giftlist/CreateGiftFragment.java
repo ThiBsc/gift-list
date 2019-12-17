@@ -1,5 +1,7 @@
 package com.example.giftlist;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,7 +38,12 @@ public class CreateGiftFragment extends Fragment {
                 if (nameGift.getText().length() == 0){
                     Toast.makeText(getContext(), R.string.missing_namegift, Toast.LENGTH_SHORT).show();
                 } else {
+                    GiftItem gift = new GiftItem(nameGift.getText().toString(), urlGift.getText().toString(), Integer.parseInt(amountGift.getText().toString()));
 
+                    Intent data = new Intent();
+                    data.putExtra("gift", gift);
+                    getActivity().setResult(Activity.RESULT_OK, data);
+                    getActivity().finish();
                 }
             }
         });
