@@ -1,7 +1,6 @@
-package com.example.giftlist;
+package com.thibsc.giftlist;
 
 import android.os.Bundle;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 

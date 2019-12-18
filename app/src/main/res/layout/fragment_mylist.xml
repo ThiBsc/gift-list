@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MyListFragment">
+    tools:context="com.thibsc.giftlist.MyListFragment">
 
     <ListView
         android:id="@android:id/list"

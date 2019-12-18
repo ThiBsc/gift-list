@@ -1,4 +1,4 @@
-package com.example.giftlist;
+package com.thibsc.giftlist;
 
 import android.os.Bundle;
 

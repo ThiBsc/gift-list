@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
 
     <fragment
-        class="com.example.giftlist.SelectGiftFragment"
+        class="com.thibsc.giftlist.SelectGiftFragment"
         android:id="@+id/selectGift_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

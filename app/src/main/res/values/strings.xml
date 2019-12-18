@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">GiftList</string>
+    <string name="app_name">Gift list</string>
 
     <string name="my_list">Mes listes</string>
     <string name="followed_list">Listes suivis</string>
@@ -13,4 +13,5 @@
 
     <string name="create_list">Créer une liste</string>
     <string name="delete">Supprimer</string>
+    <string name="getgift">Je le prends</string>
 </resources>
