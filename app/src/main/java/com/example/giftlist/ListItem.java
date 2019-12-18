@@ -38,6 +38,10 @@ public class ListItem implements Serializable {
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public void addGift(GiftItem gift){
         gifts.add(gift);
     }

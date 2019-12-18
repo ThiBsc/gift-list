@@ -11,11 +11,13 @@ public class GiftItem implements Serializable {
 
     private String name, url;
     private int amount;
+    private boolean buy;
 
-    public GiftItem(String name, String url, int amount){
+    public GiftItem(String name, String url, int amount, boolean buy){
         this.name = name;
         this.url = url;
         this.amount = amount;
+        this.buy = buy;
     }
 
     @Override
@@ -34,5 +36,9 @@ public class GiftItem implements Serializable {
 
     public int getAmount() {
         return amount;
+    }
+
+    public boolean isBuy() {
+        return buy;
     }
 }

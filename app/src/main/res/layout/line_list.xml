@@ -6,7 +6,8 @@
     <ImageView
         android:id="@+id/myListIcon"
         android:layout_width="60dp"
-        android:layout_height="60dp" />
+        android:layout_height="60dp"
+        android:src="@drawable/ic_format_list_bulleted_blue_24dp"/>
 
     <LinearLayout
         android:orientation="vertical"
@@ -49,7 +50,6 @@
                 android:text="1"/>
 
         </LinearLayout>
-
 
     </LinearLayout>
 

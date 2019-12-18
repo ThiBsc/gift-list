@@ -1,6 +1,7 @@
 package com.example.giftlist;
 
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,9 +21,11 @@ import androidx.annotation.Nullable;
 public class GiftAdapter extends ArrayAdapter<GiftItem> {
 
     private LayoutInflater layoutInflater;
+    private boolean displayBuyIndicator;
 
-    public  GiftAdapter(Activity activity){
+    public  GiftAdapter(Activity activity, boolean displayBuyIndicator){
         super(activity, R.layout.line_gift);
+        this.displayBuyIndicator = displayBuyIndicator;
     }
 
     @Override
@@ -32,6 +37,11 @@ public class GiftAdapter extends ArrayAdapter<GiftItem> {
         }
         GiftItem giftItem = getItem(position);
 
+        if (!(displayBuyIndicator && giftItem.isBuy())) {
+            ImageView indicator = ret.findViewById(R.id.buyIndicator);
+            indicator.setVisibility(View.GONE);
+        }
+
         TextView giftName = ret.findViewById(R.id.myGiftName);
         TextView giftUrl = ret.findViewById(R.id.myGiftUrl);
         TextView giftAmount = ret.findViewById(R.id.myGiftAmount);
@@ -39,9 +49,6 @@ public class GiftAdapter extends ArrayAdapter<GiftItem> {
         giftName.setText(giftItem.getName());
         giftUrl.setText(giftItem.getUrl());
         giftAmount.setText(String.format("x%d", giftItem.getAmount()));
-
-        ImageView image = ret.findViewById(R.id.myListIcon);
-        image.setImageResource(R.drawable.ic_card_giftcard_blue_24dp);
 
         return ret;
     }

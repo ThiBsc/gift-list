@@ -43,7 +43,7 @@ public class CreateListFragment extends Fragment {
         giftList = view.findViewById(R.id.myNewlist_gistList);
         saveListBtn = view.findViewById(R.id.savelist_btn);
 
-        giftAdapter = new GiftAdapter(getActivity());
+        giftAdapter = new GiftAdapter(getActivity(), false);
         giftList.setAdapter(giftAdapter);
 
         btnAddGift.setOnClickListener(new View.OnClickListener() {

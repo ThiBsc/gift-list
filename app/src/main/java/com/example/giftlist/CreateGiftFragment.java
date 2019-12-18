@@ -38,7 +38,7 @@ public class CreateGiftFragment extends Fragment {
             if (nameGift.getText().length() == 0){
                 Toast.makeText(getContext(), R.string.missing_namegift, Toast.LENGTH_SHORT).show();
             } else {
-                GiftItem gift = new GiftItem(nameGift.getText().toString(), urlGift.getText().toString(), Integer.parseInt(amountGift.getText().toString()));
+                GiftItem gift = new GiftItem(nameGift.getText().toString(), urlGift.getText().toString(), Integer.parseInt(amountGift.getText().toString()), false);
 
                 Intent data = new Intent();
                 data.putExtra("gift", gift);

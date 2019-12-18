@@ -29,13 +29,15 @@ public class FollowedListFragment extends ListFragment {
         Log.d(TAG_FOLLOWED_LIST_FRAGMENT, "onCreateView()");
         View view = inflater.inflate(R.layout.fragment_followedlist, container, false);
         listAdapter = new ListAdapter(getActivity());
-        /*for (int i=0; i<5; i++){
-            listAdapter.add(new ListItem("Liste Cassy noël #"+i));
-        }
-        listAdapter.add(new ListItem("Liste Cassy noël 2019"));
-        listAdapter.add(new ListItem("Liste Christian noël 2019"));
-        listAdapter.add(new ListItem("Cassy anniversaire 2020"));
-        listAdapter.add(new ListItem("Julien anniversaire 2020"));*/
+
+        listAdapter.add(new ListItem("cassy", "Liste Cassy noël 2019", "a"));
+        listAdapter.add(new ListItem("christian", "Liste Christian noël 2019", "b"));
+        listAdapter.add(new ListItem("cassy", "Cassy anniversaire 2020", "c"));
+        listAdapter.add(new ListItem("julien", "Julien anniversaire 2020", "d"));
+        listAdapter.getItem(0).addGift(new GiftItem("Valise eastpak", "https://www.eastpak.com/fr-fr/bagages-c140/tranverz-s-super-dreamy-pink-pEK61LA74+00+999.html", 1, false));
+        listAdapter.getItem(0).addGift(new GiftItem("Raspberry pi 4", "https://www.kubii.fr/174-raspberry-pi-4", 2, true));
+        listAdapter.getItem(1).addGift(new GiftItem("Licorne", "https://www.unicorn.fr/", 1, false));
+
         setListAdapter(listAdapter);
         return view;
     }

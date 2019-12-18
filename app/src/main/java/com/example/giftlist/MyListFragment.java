@@ -49,9 +49,9 @@ public class MyListFragment extends ListFragment {
         });
         listAdapter.add(new ListItem("Thibaut", "Noël 2020", "azerty"));
         listAdapter.add(new ListItem("Thibaut", "Anniversaire 2020", "qwerty"));
-        listAdapter.getItem(0).addGift(new GiftItem("Valise eastpak", "https://www.eastpak.com/fr-fr/bagages-c140/tranverz-s-super-dreamy-pink-pEK61LA74+00+999.html", 1));
-        listAdapter.getItem(0).addGift(new GiftItem("Raspberry pi 4", "https://www.kubii.fr/174-raspberry-pi-4", 2));
-        listAdapter.getItem(1).addGift(new GiftItem("Licorne", "https://www.unicorn.fr/", 1));
+        listAdapter.getItem(0).addGift(new GiftItem("Valise eastpak", "https://www.eastpak.com/fr-fr/bagages-c140/tranverz-s-super-dreamy-pink-pEK61LA74+00+999.html", 1, false));
+        listAdapter.getItem(0).addGift(new GiftItem("Raspberry pi 4", "https://www.kubii.fr/174-raspberry-pi-4", 2, true));
+        listAdapter.getItem(1).addGift(new GiftItem("Licorne", "https://www.unicorn.fr/", 1, false));
 
         setListAdapter(listAdapter);
         return view;
@@ -114,6 +114,7 @@ public class MyListFragment extends ListFragment {
                 listAdapter.remove(list);
                 listAdapter.insert(list, idx);
             } else {
+                list.setId(String.format("notsynchronized#%d", listAdapter.getCount()));
                 listAdapter.insert(list, 0);
             }
 

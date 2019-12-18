@@ -1,6 +1,7 @@
 package com.example.giftlist;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,9 +40,6 @@ public class ListAdapter extends ArrayAdapter<ListItem> {
         listName.setText(listItem.getName());
         listCreator.setText(listItem.getCreator());
         listAmount.setText(String.format("(%d)", listItem.getGifts().size()));
-
-        ImageView image = ret.findViewById(R.id.myListIcon);
-        image.setImageResource(R.drawable.ic_format_list_bulleted_blue_24dp);
 
         return ret;
     }
