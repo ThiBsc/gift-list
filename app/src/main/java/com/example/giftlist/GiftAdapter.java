@@ -37,9 +37,11 @@ public class GiftAdapter extends ArrayAdapter<GiftItem> {
         }
         GiftItem giftItem = getItem(position);
 
+        ImageView indicator = ret.findViewById(R.id.buyIndicator);
         if (!(displayBuyIndicator && giftItem.isBuy())) {
-            ImageView indicator = ret.findViewById(R.id.buyIndicator);
             indicator.setVisibility(View.GONE);
+        } else {
+            indicator.setVisibility(View.VISIBLE);
         }
 
         TextView giftName = ret.findViewById(R.id.myGiftName);

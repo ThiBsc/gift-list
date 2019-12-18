@@ -21,6 +21,8 @@
         </activity>
         <activity android:name=".CreateGiftActivity">
         </activity>
+        <activity android:name=".SelectGiftActivity">
+        </activity>
     </application>
 
 </manifest>
