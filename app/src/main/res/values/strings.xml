@@ -14,4 +14,16 @@
     <string name="create_list">Créer une liste</string>
     <string name="delete">Supprimer</string>
     <string name="getgift">Je le prends</string>
+
+    <!-- FirebaseAuth message -->
+    <string name="fireauth_connection_ok">Connexion à la base de données OK!</string>
+    <string name="fireauth_connection_fail">Impossible de charger les données!</string>
+    <string name="fireauth_create_user">Votre profil a correctement été créé</string>
+    <string name="fireauth_load_list_error">Impossible de charger vos listes!</string>
+
+    <!-- SignIn activity text -->
+    <string name="signin_welcome">Bienvenue dans Gift List</string>
+    <string name="signin_text">Pour utiliser l\'application et enregistrer des listes, veuillez vous connecter avec votre compte google.
+    </string>
+    <string name="signin_error">Impossible de contacter le serveur, vérifiez votre connexion internet ou réessayez plus tard.</string>
 </resources>

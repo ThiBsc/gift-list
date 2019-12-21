@@ -12,6 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+/**
+ * To select a gift and say "I take this gift"
+ */
 public class SelectGiftFragment extends Fragment {
 
     private TextView listName, creator;

@@ -10,11 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name="com.thibsc.giftlist.MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <activity android:name="com.thibsc.giftlist.CreateListActivity">
@@ -22,6 +18,15 @@
         <activity android:name="com.thibsc.giftlist.CreateGiftActivity">
         </activity>
         <activity android:name="com.thibsc.giftlist.SelectGiftActivity">
+        </activity>
+        <activity android:name="com.thibsc.giftlist.SignInActivity"
+            android:noHistory="true">
+            <!-- Leave if backpressed -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 

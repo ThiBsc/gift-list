@@ -31,15 +31,6 @@ public class FollowedListFragment extends ListFragment {
         View view = inflater.inflate(R.layout.fragment_followedlist, container, false);
         listAdapter = new ListAdapter(getActivity());
 
-        listAdapter.add(new ListItem("john", "Christmas 2019", "a"));
-        listAdapter.add(new ListItem("jerry", "Christmas 2020", "b"));
-        listAdapter.add(new ListItem("john", "Birthday 2020", "c"));
-        listAdapter.add(new ListItem("jerry", "Party Ibiza 2k21", "d"));
-        listAdapter.getItem(0).addGift(new GiftItem("Valise eastpak", "https://www.eastpak.com/fr-fr/bagages-c140/tranverz-s-super-dreamy-pink-pEK61LA74+00+999.html", 1, true));
-        listAdapter.getItem(0).addGift(new GiftItem("Raspberry pi 4", "https://www.kubii.fr/174-raspberry-pi-4", 2, false));
-        listAdapter.getItem(0).addGift(new GiftItem("USB type c cable", "", 1, true));
-        listAdapter.getItem(1).addGift(new GiftItem("Licorne", "https://www.unicorn.fr/", 1, false));
-
         setListAdapter(listAdapter);
         return view;
     }
