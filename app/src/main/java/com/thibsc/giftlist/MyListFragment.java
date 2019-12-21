@@ -66,11 +66,6 @@ public class MyListFragment extends ListFragment implements FirebaseAuth.AuthSta
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-    }
-
-    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -101,7 +96,7 @@ public class MyListFragment extends ListFragment implements FirebaseAuth.AuthSta
                                 );
                                 ArrayList<HashMap<String, Object>> gifts = (ArrayList<HashMap<String, Object>>)document.get("gifts");
                                 for (HashMap<String, Object> h : gifts){
-                                    GiftItem gift = new GiftItem(h.get("name").toString(), h.get("url").toString(), Integer.parseInt(h.get("amount").toString()), false);
+                                    GiftItem gift = new GiftItem(h.get("name").toString(), h.get("url").toString(), Integer.parseInt(h.get("amount").toString()));
                                     item.addGift(gift);
                                     Log.d("USER LIST GIFTS", h.toString());
                                 }
