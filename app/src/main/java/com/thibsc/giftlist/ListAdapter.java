@@ -36,7 +36,7 @@ public class ListAdapter extends ArrayAdapter<ListItem> {
         TextView listAmount = ret.findViewById(R.id.myListAmount);
 
         listName.setText(listItem.getName());
-        listCreator.setText(listItem.getCreator());
+        listCreator.setText(listItem.getCreator_displayname());
         listAmount.setText(String.format("(%d)", listItem.getGifts().size()));
 
         return ret;

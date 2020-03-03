@@ -16,10 +16,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import java.util.ArrayList;
 
 /**
  * The fragment that allow you to create a gift list
@@ -60,7 +66,12 @@ public class CreateListFragment extends Fragment {
                 if (nameList.getText().length() == 0){
                     Toast.makeText(getContext(), R.string.missing_namelist, Toast.LENGTH_SHORT).show();
                 } else {
-                    ListItem list = new ListItem("Thibaut", nameList.getText().toString(), id.getText().toString());
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                    final FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                    final DocumentReference userRef = db.collection("users").document(firebaseUser.getUid());
+
+                    ListItem list = new ListItem(userRef, firebaseUser.getDisplayName(), nameList.getText().toString(), new ArrayList<DocumentReference>(), new ArrayList<GiftItem>());
                     for (int i=0; i<giftList.getCount(); i++){
                         list.addGift(giftAdapter.getItem(i));
                     }

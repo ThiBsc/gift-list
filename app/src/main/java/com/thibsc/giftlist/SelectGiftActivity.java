@@ -23,7 +23,7 @@ public class SelectGiftActivity extends FragmentActivity {
 
             // Set the creator
             TextView creator = findViewById(R.id.selectGift_creator);
-            creator.setText(listItem.getCreator());
+            creator.setText(listItem.getCreator_displayname());
 
             // Set the gifts of the list
             ListView listView = findViewById(R.id.selectGift_giftList);

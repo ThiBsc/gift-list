@@ -48,9 +48,8 @@ public class GiftAdapter extends ArrayAdapter<GiftItem> {
         giftName.setText(giftItem.getName());
         giftUrl.setText(giftItem.getUrl());
 
-        String buyer = (giftItem.isBuy() ?
-                String.format("\t(%s %s)", getContext().getResources().getString(R.string.get_by),
-                        giftItem.getUserGetter().display_name)
+        String buyer = (displayBuyIndicator && giftItem.isBuy() ?
+                String.format(" (%s %s)", getContext().getResources().getString(R.string.get_by), giftItem.getGet_by().get("user_displayname"))
                 : "");
         giftAmount.setText(String.format("x%d%s", giftItem.getAmount(), buyer));
 

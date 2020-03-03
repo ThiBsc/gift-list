@@ -21,6 +21,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthCredential;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -74,14 +75,6 @@ public class SignInActivity extends Activity implements View.OnClickListener {
     @Override
     protected void onStart() {
         super.onStart();
-        // Check for existing Google Sign In account, if the user is already signed in
-        // the GoogleSignInAccount will be non-null.
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        //Log.w(TAG, "DisplayName: " + account.getDisplayName() + " id: " + account.getId());
-        //updateUI(account);
-        if (account != null) {
-            startMainActivity();
-        }
     }
 
     @Override
@@ -118,7 +111,7 @@ public class SignInActivity extends Activity implements View.OnClickListener {
             completedTask.getResult(ApiException.class);
             // Signed in successfully, show authenticated UI.
             //updateUI(account);
-            startMainActivity();
+            finish();
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
@@ -126,10 +119,5 @@ public class SignInActivity extends Activity implements View.OnClickListener {
             //updateUI(null);
             Snackbar.make(signInButton, R.string.signin_error, Snackbar.LENGTH_LONG);
         }
-    }
-
-    private void startMainActivity(){
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
     }
 }

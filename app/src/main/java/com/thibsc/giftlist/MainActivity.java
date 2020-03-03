@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,6 +12,8 @@ import android.widget.ProgressBar;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
@@ -30,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
     private String TAG = "MAIN_ACTIVITY";
 
     private ViewPager viewPager;
-    private ProgressBar progressBar;
     private PageAdapter pageAdapter;
     private TabLayout tabLayout;
     private FirebaseAuth mAuth;
@@ -41,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         viewPager = findViewById(R.id.mainViewPager);
-        progressBar = findViewById(R.id.load_progress);
 
         pageAdapter = new PageAdapter(getSupportFragmentManager(), getBaseContext());
         viewPager.setAdapter(pageAdapter);
@@ -56,11 +57,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        if (mAuth.getCurrentUser() == null){
-            // Here, google can't be null
-            progressBar.setVisibility(View.VISIBLE);
-            firebaseAuthWithGoogle(GoogleSignIn.getLastSignedInAccount(this));
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        //Log.w(TAG, "DisplayName: " + account.getDisplayName() + " id: " + account.getId());
+        //updateUI(account);
+        if (account == null) {
+            startSignInActivity();
+        } else {
+            if (mAuth.getCurrentUser() == null){
+                // Here, google can't be null
+                firebaseAuthWithGoogle(account);
+            }
+            //firebaseAuthWithGoogle(account);
         }
+    }
+
+    private void startSignInActivity(){
+        Intent intent = new Intent(this, SignInActivity.class);
+        startActivity(intent);
     }
 
     @Override
@@ -73,6 +86,23 @@ public class MainActivity extends AppCompatActivity {
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
+
+        if (acct.isExpired()){
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(getString(R.string.default_web_client_id))
+                    .requestEmail()
+                    .build();
+
+            GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);
+            googleSignInClient.silentSignIn().addOnCompleteListener(new OnCompleteListener<GoogleSignInAccount>() {
+                @Override
+                public void onComplete(@NonNull Task<GoogleSignInAccount> task) {
+                    if (task.isSuccessful()){
+                        Log.d(TAG, "isExpired: " + task.getResult().isExpired());
+                    }
+                }
+            });
+        }
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential)
@@ -90,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
                         }
-                        progressBar.setVisibility(View.GONE);
                     }
                 });
     }

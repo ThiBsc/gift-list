@@ -22,22 +22,27 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.ListFragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 /**
  * Your gift lists (what you have created)
  */
-public class MyListFragment extends ListFragment implements FirebaseAuth.AuthStateListener {
+public class MyListFragment extends ListFragment implements FirebaseAuth.AuthStateListener, SwipeRefreshLayout.OnRefreshListener {
 
     public static final String TAG_MY_LIST_FRAGMENT = "MY_LIST_FRAGMENT";
 
     private ListAdapter listAdapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private FloatingActionButton createListButton;
     private FirebaseAuth mAuth;
 
@@ -51,6 +56,8 @@ public class MyListFragment extends ListFragment implements FirebaseAuth.AuthSta
         View view = inflater.inflate(R.layout.fragment_mylist, container, false);
 
         listAdapter = new ListAdapter(getActivity());
+        swipeRefreshLayout = view.findViewById(R.id.mylist_refreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(this);
 
         createListButton = view.findViewById(R.id.addlist_btn);
         createListButton.setOnClickListener(new View.OnClickListener() {
@@ -89,23 +96,14 @@ public class MyListFragment extends ListFragment implements FirebaseAuth.AuthSta
                         if (task.isSuccessful()) {
                             Log.d("USER LIST", "Success: " + task.getResult().size());
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                ListItem item = new ListItem(
-                                        firebaseUser.getDisplayName(),
-                                        document.getString("name"),
-                                        firebaseUser.getUid()
-                                );
-                                ArrayList<HashMap<String, Object>> gifts = (ArrayList<HashMap<String, Object>>)document.get("gifts");
-                                for (HashMap<String, Object> h : gifts){
-                                    GiftItem gift = new GiftItem(h.get("name").toString(), h.get("url").toString(), Integer.parseInt(h.get("amount").toString()));
-                                    item.addGift(gift);
-                                    Log.d("USER LIST GIFTS", h.toString());
-                                }
+                                ListItem item = document.toObject(ListItem.class);
                                 listAdapter.add(item);
                                 Log.d("USER LIST", document.getId() + " => " + document.getData());
                             }
                         } else {
                             Log.d("USER LIST", "Error getting documents: ", task.getException());
                         }
+                        swipeRefreshLayout.setRefreshing(false);
                     }
                 });
     }
@@ -167,7 +165,8 @@ public class MyListFragment extends ListFragment implements FirebaseAuth.AuthSta
                 listAdapter.remove(list);
                 listAdapter.insert(list, idx);
             } else {
-                list.setId(String.format("notsynchronized#%d", listAdapter.getCount()));
+                //list.setId(String.format("notsynchronized#%d", listAdapter.getCount()));
+                addUserList(list);
                 listAdapter.insert(list, 0);
             }
         }
@@ -177,8 +176,41 @@ public class MyListFragment extends ListFragment implements FirebaseAuth.AuthSta
     public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null){
+            swipeRefreshLayout.setRefreshing(true);
             loadUserLists();
             Snackbar.make(createListButton, R.string.fireauth_connection_ok, Snackbar.LENGTH_LONG).show();
         }
+    }
+
+    @Override
+    public void onRefresh() {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null){
+            listAdapter.clear();
+            loadUserLists();
+        }
+    }
+
+    public void addUserList(ListItem list){
+        // Create the user document to firebase
+        // Due to the security rules in the firebase configuration, if the document exists, it does nothing
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Map<String, Object> data = new HashMap<>();
+
+        DocumentReference newListRef = db.collection("lists").document();
+
+        // Later...
+        newListRef.set(list, SetOptions.merge())
+        .addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    Snackbar.make(createListButton, "List saved with success", Snackbar.LENGTH_LONG).show();
+                } else {
+                    Snackbar.make(createListButton, task.getException().getMessage(), Snackbar.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 }

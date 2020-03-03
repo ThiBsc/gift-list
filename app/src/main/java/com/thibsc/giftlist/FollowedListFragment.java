@@ -25,15 +25,17 @@ import java.util.HashMap;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.ListFragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 /**
  * The lists that you following
  */
-public class FollowedListFragment extends ListFragment implements FirebaseAuth.AuthStateListener {
+public class FollowedListFragment extends ListFragment implements FirebaseAuth.AuthStateListener, SwipeRefreshLayout.OnRefreshListener {
 
     public static final String TAG_FOLLOWED_LIST_FRAGMENT = "FOLLOWED_LIST_FRAGMENT";
 
     private ListAdapter listAdapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private FirebaseAuth mAuth;
 
     public static FollowedListFragment newInstance(){
@@ -45,6 +47,9 @@ public class FollowedListFragment extends ListFragment implements FirebaseAuth.A
         Log.d(TAG_FOLLOWED_LIST_FRAGMENT, "onCreateView()");
         View view = inflater.inflate(R.layout.fragment_followedlist, container, false);
         listAdapter = new ListAdapter(getActivity());
+
+        swipeRefreshLayout = view.findViewById(R.id.followedlist_refreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(this);
 
         setListAdapter(listAdapter);
         return view;
@@ -74,28 +79,13 @@ public class FollowedListFragment extends ListFragment implements FirebaseAuth.A
                         if (task.isSuccessful()) {
                             Log.d("FOLLOWED LIST", "Success: " + task.getResult().size());
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                ListItem item = new ListItem(
-                                        document.getString("creator_displayname"),
-                                        document.getString("name"),
-                                        document.get("creator", DocumentReference.class).getId()
-                                );
-                                ArrayList<HashMap<String, Object>> gifts = (ArrayList<HashMap<String, Object>>)document.get("gifts");
-                                for (HashMap<String, Object> h : gifts){
-                                    HashMap<String, Object> get_by = (HashMap<String, Object>) h.get("get_by");
-                                    GiftItem gift = new GiftItem(h.get("name").toString(), h.get("url").toString(), Integer.parseInt(h.get("amount").toString()));
-
-                                    if (get_by != null){
-                                        DocumentReference buyer_ref = (DocumentReference) get_by.get("user");
-                                        gift.setUserGetter(buyer_ref.getId(), get_by.get("user_displayname").toString());
-                                    }
-
-                                    item.addGift(gift);
-                                }
+                                ListItem item = document.toObject(ListItem.class);
                                 listAdapter.add(item);
                             }
                         } else {
                             Log.d("FOLLOWED LIST", "Error getting documents: ", task.getException());
                         }
+                        swipeRefreshLayout.setRefreshing(false);
                     }
                 });
     }
@@ -115,6 +105,16 @@ public class FollowedListFragment extends ListFragment implements FirebaseAuth.A
     public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null){
+            swipeRefreshLayout.setRefreshing(true);
+            loadFollowedLists();
+        }
+    }
+
+    @Override
+    public void onRefresh() {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null){
+            listAdapter.clear();
             loadFollowedLists();
         }
     }

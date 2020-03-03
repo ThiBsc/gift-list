@@ -15,13 +15,6 @@
 
     </com.google.android.material.tabs.TabLayout>
 
-    <ProgressBar
-        android:id="@+id/load_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|center"
-        android:visibility="gone"/>
-
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/mainViewPager"
         android:layout_width="match_parent"

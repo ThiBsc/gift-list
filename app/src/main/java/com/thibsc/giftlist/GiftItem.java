@@ -1,28 +1,36 @@
 package com.thibsc.giftlist;
 
+import com.google.firebase.firestore.DocumentReference;
+
 import java.io.Serializable;
+import java.util.HashMap;
 
 import androidx.annotation.Nullable;
 
 /**
  * Describe the content of a gift in a list
+ * It's mapped from the database structure to use:
+ * document.toObject(GiftItem.class);
  */
 public class GiftItem implements Serializable {
 
     private String name, url;
     private int amount;
-    private UserGetter userGetter;
+    private HashMap<String, String> get_by;
 
-    class UserGetter implements Serializable {
-        String user_id;
-        String display_name;
+    public GiftItem(){
+        get_by = new HashMap<>();
     }
 
-    public GiftItem(String name, String url, int amount){
+    public GiftItem(String name, String url, int amount, HashMap<String, Object> get_by){
         this.name = name;
         this.url = url;
         this.amount = amount;
-        userGetter = null;
+        this.get_by = new HashMap<>();
+
+        if (!get_by.isEmpty()) {
+            setGet_by(get_by);
+        }
     }
 
     @Override
@@ -43,17 +51,18 @@ public class GiftItem implements Serializable {
         return amount;
     }
 
-    public void setUserGetter(String user_id, String display_name) {
-        this.userGetter = new UserGetter();
-        this.userGetter.user_id = user_id;
-        this.userGetter.display_name = display_name;
+    public HashMap<String, String> getGet_by() {
+        return get_by;
     }
 
-    public UserGetter getUserGetter() {
-        return userGetter;
+    public void setGet_by(HashMap<String, Object> get_by) {
+        if (!get_by.isEmpty()) {
+            this.get_by.put("user", ((DocumentReference) get_by.get("user")).getPath());
+            this.get_by.put("user_displayname", get_by.get("user_displayname").toString());
+        }
     }
 
     public boolean isBuy(){
-        return userGetter != null;
+        return !get_by.isEmpty();
     }
 }

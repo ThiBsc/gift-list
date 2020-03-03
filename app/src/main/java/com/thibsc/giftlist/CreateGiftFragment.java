@@ -15,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.util.HashMap;
+
 /**
  * The fragment that allow you to create a gift
  */
@@ -38,7 +40,7 @@ public class CreateGiftFragment extends Fragment {
                 if (nameGift.getText().length() == 0){
                     Toast.makeText(getContext(), R.string.missing_namegift, Toast.LENGTH_SHORT).show();
                 } else {
-                    GiftItem gift = new GiftItem(nameGift.getText().toString(), urlGift.getText().toString(), Integer.parseInt(amountGift.getText().toString()));
+                    GiftItem gift = new GiftItem(nameGift.getText().toString(), urlGift.getText().toString(), Integer.parseInt(amountGift.getText().toString()), new HashMap<String, Object>());
 
                     Intent data = new Intent();
                     data.putExtra("gift", gift);
