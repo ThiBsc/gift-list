@@ -1,31 +1,36 @@
 package com.thibsc.giftlist;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-
-import java.util.ArrayList;
-import java.util.HashMap;
+import com.google.firebase.firestore.SetOptions;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.ListFragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The lists that you following
@@ -36,6 +41,7 @@ public class FollowedListFragment extends ListFragment implements FirebaseAuth.A
 
     private ListAdapter listAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private FloatingActionButton followListButton;
     private FirebaseAuth mAuth;
 
     public static FollowedListFragment newInstance(){
@@ -50,6 +56,35 @@ public class FollowedListFragment extends ListFragment implements FirebaseAuth.A
 
         swipeRefreshLayout = view.findViewById(R.id.followedlist_refreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
+
+        followListButton = view.findViewById(R.id.followlist_btn);
+        followListButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("Référence liste");
+
+                final EditText input = new EditText(getContext());
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                builder.setView(input);
+
+                builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String ref_list = input.getText().toString();
+                        addFollowedList(String.format("users/%s", ref_list));
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
+            }
+        });
 
         setListAdapter(listAdapter);
         return view;
@@ -84,6 +119,45 @@ public class FollowedListFragment extends ListFragment implements FirebaseAuth.A
                             }
                         } else {
                             Log.d("FOLLOWED LIST", "Error getting documents: ", task.getException());
+                        }
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                });
+    }
+
+    private void addFollowedList(String ref_list){
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        final FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        final DocumentReference userRef = db.collection("users").document(firebaseUser.getUid());
+
+        db.collection("lists")
+                .whereEqualTo("id", ref_list)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Log.d("FOLLOWED LIST", "Success: " + task.getResult().size());
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                ListItem item = document.toObject(ListItem.class);
+                                if (item.addFollower(userRef.getPath())){
+                                    DocumentReference doc_ref = db.collection("lists").document(document.getId());
+
+                                    Map<String, Object> followers = new HashMap<>();
+                                    ArrayList<DocumentReference> followers_ref = new ArrayList<DocumentReference>();
+                                    for (String f : item.getFollowers()){
+                                        followers_ref.add(db.collection("users").document(f.split("/")[1]));
+                                    }
+                                    followers.put("followers", followers_ref);
+                                    doc_ref.set(followers, SetOptions.mergeFields("followers"));
+                                    listAdapter.add(item);
+                                }
+                            }
+                        } else {
+                            // Can't arrive, just a no result in the if statement
+                            //Log.d("FOLLOWED LIST", "Error getting documents: ", task.getException());
                         }
                         swipeRefreshLayout.setRefreshing(false);
                     }

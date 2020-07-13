@@ -16,8 +16,6 @@ import androidx.annotation.Nullable;
  */
 public class ListAdapter extends ArrayAdapter<ListItem> {
 
-    private LayoutInflater layoutInflater;
-
     public  ListAdapter(Activity activity){
         super(activity, R.layout.line_list);
     }
@@ -34,10 +32,22 @@ public class ListAdapter extends ArrayAdapter<ListItem> {
         TextView listName = ret.findViewById(R.id.myListName);
         TextView listCreator = ret.findViewById(R.id.myListCreator);
         TextView listAmount = ret.findViewById(R.id.myListAmount);
+        TextView followerAmount = ret.findViewById(R.id.myFollowerAmount);
 
         listName.setText(listItem.getName());
         listCreator.setText(listItem.getCreator_displayname());
         listAmount.setText(String.format("(%d)", listItem.getGifts().size()));
+
+        int followers = listItem.getFollowers().size();
+        if (followers > 0){
+            followerAmount.setVisibility(View.VISIBLE);
+
+            String followed_text = getContext().getResources().getString(R.string.followed_amount);
+            String followed_amount = getContext().getResources().getString(followers > 1 ? R.string.persons : R.string.person);
+            followerAmount.setText(String.format("%s %d %s", followed_text, followers, followed_amount));
+        } else {
+            followerAmount.setVisibility(View.INVISIBLE);
+        }
 
         return ret;
     }

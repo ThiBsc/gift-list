@@ -3,6 +3,7 @@
 
     <string name="my_list">Mes listes</string>
     <string name="followed_list">Listes suivis</string>
+    <string name="followed_amount">Suivie par</string>
     <string name="placeholder_newlist">Nom de la liste</string>
     <string name="placeholder_newgift">Nom du cadeau</string>
     <string name="placeholder_urlgift">Lien d\'exemple</string>
@@ -12,6 +13,10 @@
     <string name="missing_namelist">Vous devez renseigner au moins un nom</string>
 
     <string name="create_list">Créer une liste</string>
+    <string name="copy">Copier la référence</string>
+    <string name="person">personne</string>
+    <string name="persons">personnes</string>
+    <string name="copy_done">Référence liste copié</string>
     <string name="delete">Supprimer</string>
     <string name="getgift">Je le prends</string>
     <string name="get_by">Pris par</string>

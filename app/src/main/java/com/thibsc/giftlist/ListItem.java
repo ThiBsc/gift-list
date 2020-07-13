@@ -89,4 +89,13 @@ public class ListItem implements Serializable {
             this.followers.add(dr.getPath());
         }
     }
+
+    public boolean addFollower(String follower){
+        boolean ret = false;
+        if (!followers.contains(follower)){
+            followers.add(follower);
+            ret = true;
+        }
+        return ret;
+    }
 }

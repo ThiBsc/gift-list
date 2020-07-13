@@ -1,6 +1,9 @@
 package com.thibsc.giftlist;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,8 +27,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -138,6 +139,15 @@ public class MyListFragment extends ListFragment implements FirebaseAuth.AuthSta
             case R.id.deleteList:
                 listAdapter.remove(listAdapter.getItem(info.position));
                 break;
+            case R.id.copyIdList:
+                String idlist = listAdapter.getItem(info.position).getId().substring("users/".length());
+
+                // Copy the ID of the list in the clipboard
+                ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData data = ClipData.newPlainText("idlist", idlist);
+                clipboard.setPrimaryClip(data);
+                Snackbar.make(createListButton, R.string.copy_done, Snackbar.LENGTH_LONG).show();
+                break;
             default:
                 break;
         }
@@ -195,8 +205,6 @@ public class MyListFragment extends ListFragment implements FirebaseAuth.AuthSta
         // Create the user document to firebase
         // Due to the security rules in the firebase configuration, if the document exists, it does nothing
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        Map<String, Object> data = new HashMap<>();
 
         DocumentReference newListRef = db.collection("lists").document();
 
