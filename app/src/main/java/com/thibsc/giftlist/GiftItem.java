@@ -56,9 +56,11 @@ public class GiftItem implements Serializable {
     }
 
     public void setGet_by(HashMap<String, Object> get_by) {
-        if (!get_by.isEmpty()) {
-            this.get_by.put("user", ((DocumentReference) get_by.get("user")).getPath());
+        if (get_by != null && !get_by.isEmpty()) {
+            this.get_by.put("user", get_by.get("user").toString());
             this.get_by.put("user_displayname", get_by.get("user_displayname").toString());
+        } else {
+            this.get_by.clear();
         }
     }
 

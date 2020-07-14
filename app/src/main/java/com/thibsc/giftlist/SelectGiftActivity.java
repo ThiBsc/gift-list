@@ -30,7 +30,7 @@ public class SelectGiftActivity extends FragmentActivity {
             ((GiftAdapter)listView.getAdapter()).addAll(listItem.getGifts());
 
             // Set the id of the list
-            TextView id = findViewById(R.id.listId);
+            TextView id = findViewById(R.id.listRef);
             id.setText(listItem.getId());
         }
     }

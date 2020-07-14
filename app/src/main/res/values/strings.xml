@@ -19,6 +19,7 @@
     <string name="copy_done">Référence liste copié</string>
     <string name="delete">Supprimer</string>
     <string name="getgift">Je le prends</string>
+    <string name="getgift_cancel">Je ne le prends plus</string>
     <string name="get_by">Pris par</string>
 
     <!-- FirebaseAuth message -->
