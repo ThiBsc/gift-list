@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +42,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 public class MyListFragment extends ListFragment implements FirebaseAuth.AuthStateListener, SwipeRefreshLayout.OnRefreshListener {
 
     public static final String TAG_MY_LIST_FRAGMENT = "MY_LIST_FRAGMENT";
+    private final int MYLIST_GROUPID = 0;
 
     private ListAdapter listAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -129,29 +131,37 @@ public class MyListFragment extends ListFragment implements FirebaseAuth.AuthSta
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        getActivity().getMenuInflater().inflate(R.menu.list_menu, menu);
+        //getActivity().getMenuInflater().inflate(R.menu.list_menu, menu);
+        menu.add(MYLIST_GROUPID, R.id.copyIdList, Menu.NONE, R.string.copy);
+        menu.add(MYLIST_GROUPID, R.id.deleteList, Menu.NONE, R.string.delete);
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        switch (item.getItemId()){
-            case R.id.deleteList:
-                listAdapter.remove(listAdapter.getItem(info.position));
-                break;
-            case R.id.copyIdList:
-                String idlist = listAdapter.getItem(info.position).getId().substring("users/".length());
+        boolean ret = super.onContextItemSelected(item);
 
-                // Copy the ID of the list in the clipboard
-                ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData data = ClipData.newPlainText("idlist", idlist);
-                clipboard.setPrimaryClip(data);
-                Snackbar.make(createListButton, R.string.copy_done, Snackbar.LENGTH_LONG).show();
-                break;
-            default:
-                break;
+        if (item.getGroupId() == MYLIST_GROUPID) {
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            switch (item.getItemId()) {
+                case R.id.deleteList:
+                    listAdapter.remove(listAdapter.getItem(info.position));
+                    break;
+                case R.id.copyIdList:
+                    String idlist = listAdapter.getItem(info.position).getId().substring("users/".length());
+
+                    // Copy the ID of the list in the clipboard
+                    ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData data = ClipData.newPlainText("idlist", idlist);
+                    clipboard.setPrimaryClip(data);
+                    Snackbar.make(createListButton, R.string.copy_done, Snackbar.LENGTH_LONG).show();
+                    break;
+                default:
+                    break;
+            }
+            ret = true;
         }
-        return super.onContextItemSelected(item);
+
+        return ret;
     }
 
     @Override

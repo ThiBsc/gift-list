@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +32,8 @@ import java.util.ArrayList;
  * The fragment that allow you to create a gift list
  */
 public class CreateListFragment extends Fragment {
+
+    private final int CREATE_GROUPID = 1;
 
     private TextView id;
     private EditText nameList;
@@ -96,19 +99,27 @@ public class CreateListFragment extends Fragment {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        getActivity().getMenuInflater().inflate(R.menu.list_menu, menu);
+        //getActivity().getMenuInflater().inflate(R.menu.list_menu, menu);
+
+        menu.add(CREATE_GROUPID, R.id.deleteList, Menu.NONE, R.string.delete);
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        switch (item.getItemId()){
-            case R.id.deleteList:
-                giftAdapter.remove(giftAdapter.getItem(info.position));
-                break;
-            default:
-                break;
+        boolean ret = super.onContextItemSelected(item);
+
+        if (item.getGroupId() == CREATE_GROUPID){
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            switch (item.getItemId()){
+                case R.id.deleteList:
+                    giftAdapter.remove(giftAdapter.getItem(info.position));
+                    break;
+                default:
+                    break;
+            }
+            ret = true;
         }
-        return super.onContextItemSelected(item);
+
+        return ret;
     }
 }

@@ -21,8 +21,6 @@
         </activity>
         <activity android:name="com.thibsc.giftlist.CreateGiftActivity">
         </activity>
-        <activity android:name="com.thibsc.giftlist.SelectGiftActivity">
-        </activity>
         <activity android:name="com.thibsc.giftlist.SignInActivity"
             android:noHistory="true">
             <!-- Leave if backpressed -->

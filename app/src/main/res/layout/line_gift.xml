@@ -8,6 +8,7 @@
         android:layout_width="60dp"
         android:layout_height="match_parent"
         android:layout_weight="0"
+        android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
         android:src="@drawable/ic_card_giftcard_blue_24dp"/>
 
     <LinearLayout

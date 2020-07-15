@@ -2,15 +2,17 @@ package com.thibsc.giftlist;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ListView;
+import android.widget.ExpandableListView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -25,7 +27,7 @@ import com.google.firebase.firestore.SetOptions;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.ListFragment;
+import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
@@ -35,11 +37,13 @@ import java.util.Map;
 /**
  * The lists that you following
  */
-public class FollowedListFragment extends ListFragment implements FirebaseAuth.AuthStateListener, SwipeRefreshLayout.OnRefreshListener {
+public class FollowedListFragment extends Fragment implements FirebaseAuth.AuthStateListener, SwipeRefreshLayout.OnRefreshListener, View.OnCreateContextMenuListener {
 
     public static final String TAG_FOLLOWED_LIST_FRAGMENT = "FOLLOWED_LIST_FRAGMENT";
+    private final int FOLLOWED_GROUPID = 2;
 
-    private ListAdapter listAdapter;
+    private ExpandableListView expandableListView;
+    private ExpandableListFollowedAdapter expandableListAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private FloatingActionButton followListButton;
     private FirebaseAuth mAuth;
@@ -52,7 +56,11 @@ public class FollowedListFragment extends ListFragment implements FirebaseAuth.A
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG_FOLLOWED_LIST_FRAGMENT, "onCreateView()");
         View view = inflater.inflate(R.layout.fragment_followedlist, container, false);
-        listAdapter = new ListAdapter(getActivity());
+
+        expandableListView = view.findViewById(R.id.expandableListView);
+        expandableListAdapter = new ExpandableListFollowedAdapter(getContext());
+        expandableListView.setAdapter(expandableListAdapter);
+        expandableListView.setOnCreateContextMenuListener(this);
 
         swipeRefreshLayout = view.findViewById(R.id.followedlist_refreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -86,8 +94,14 @@ public class FollowedListFragment extends ListFragment implements FirebaseAuth.A
             }
         });
 
-        setListAdapter(listAdapter);
+        //setListAdapter(listAdapter)
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        registerForContextMenu(expandableListView);
     }
 
     @Override
@@ -96,6 +110,110 @@ public class FollowedListFragment extends ListFragment implements FirebaseAuth.A
 
         mAuth = FirebaseAuth.getInstance();
         mAuth.addAuthStateListener(this);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+
+        ExpandableListView.ExpandableListContextMenuInfo info = (ExpandableListView.ExpandableListContextMenuInfo) menuInfo;
+        int type = ExpandableListView.getPackedPositionType(info.packedPosition);
+        int group = ExpandableListView.getPackedPositionGroup(info.packedPosition);
+        int child = ExpandableListView.getPackedPositionChild(info.packedPosition);
+
+        // Only create a context menu for child items
+        if (type == ExpandableListView.PACKED_POSITION_TYPE_CHILD){
+            //getActivity().getMenuInflater().inflate(R.menu.followedlist_menu, menu);
+
+            GiftItem gi = (GiftItem) expandableListAdapter.getChild(group, child);
+            if (!gi.isBuy()){
+                menu.add(FOLLOWED_GROUPID, R.id.getGift, Menu.NONE, R.string.getgift);
+            } else {
+                if (gi.getGet_by().get("user").equals(String.format("users/%s", FirebaseAuth.getInstance().getCurrentUser().getUid()))) {
+                    menu.add(FOLLOWED_GROUPID, R.id.getGift_cancel, Menu.NONE, R.string.getgift_cancel);
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        boolean ret = super.onContextItemSelected(item);
+
+        if (item.getGroupId() == FOLLOWED_GROUPID){
+            ExpandableListView.ExpandableListContextMenuInfo info = (ExpandableListView.ExpandableListContextMenuInfo) item.getMenuInfo();
+
+            int groupPos = 0, childPos = 0;
+            int type = ExpandableListView.getPackedPositionType(info.packedPosition);
+            if (type == ExpandableListView.PACKED_POSITION_TYPE_CHILD){
+                groupPos = ExpandableListView.getPackedPositionGroup(info.packedPosition);
+                childPos = ExpandableListView.getPackedPositionChild(info.packedPosition);
+            }
+
+            switch (item.getItemId()){
+                case R.id.getGift:
+                    getThisGift(groupPos, childPos, false);
+                    break;
+                case R.id.getGift_cancel:
+                    getThisGift(groupPos, childPos,true);
+                    break;
+                default:
+                    break;
+            }
+            ret = true;
+        }
+
+        return ret;
+    }
+
+    private void getThisGift(final int listPosition, final int giftPosition, final boolean cancel){
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        final FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        final DocumentReference userRef = db.collection("users").document(firebaseUser.getUid());
+
+        final ListItem li = (ListItem) expandableListAdapter.getGroup(listPosition);
+
+        db.collection("lists")
+                .whereEqualTo("id", li.getId())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Log.d("FOLLOWED LIST", "Success: " + task.getResult().size());
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                ListItem item = document.toObject(ListItem.class);
+                                DocumentReference doc_ref = db.collection("lists").document(document.getId());
+
+                                Map<String, Object> gifts = new HashMap<>();
+                                GiftItem gi = (GiftItem) expandableListAdapter.getChild(listPosition, giftPosition);
+                                if (cancel){
+                                    gi.setGet_by(null);
+                                } else {
+                                    HashMap<String, Object> buyer = new HashMap<>();
+                                    buyer.put("user", userRef.getPath());
+                                    buyer.put("user_displayname", firebaseUser.getDisplayName());
+                                    gi.setGet_by(buyer);
+                                }
+
+                                ArrayList<GiftItem> new_giftlist = li.getGifts();
+                                new_giftlist.set(giftPosition, gi);
+                                li.setGifts(new_giftlist);
+
+                                gifts.put("gifts", new_giftlist);
+                                doc_ref.set(gifts, SetOptions.mergeFields("gifts"));
+
+                                // Update the view
+                                expandableListAdapter.notifyDataSetChanged();
+                            }
+                        } else {
+                            // Can't arrive, just a no result in the if statement
+                            //Log.d("FOLLOWED LIST", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
     }
 
     private void loadFollowedLists(){
@@ -115,7 +233,8 @@ public class FollowedListFragment extends ListFragment implements FirebaseAuth.A
                             Log.d("FOLLOWED LIST", "Success: " + task.getResult().size());
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 ListItem item = document.toObject(ListItem.class);
-                                listAdapter.add(item);
+                                expandableListAdapter.addList(item);
+                                expandableListAdapter.notifyDataSetChanged();
                             }
                         } else {
                             Log.d("FOLLOWED LIST", "Error getting documents: ", task.getException());
@@ -152,7 +271,8 @@ public class FollowedListFragment extends ListFragment implements FirebaseAuth.A
                                     }
                                     followers.put("followers", followers_ref);
                                     doc_ref.set(followers, SetOptions.mergeFields("followers"));
-                                    listAdapter.add(item);
+                                    expandableListAdapter.addList(item);
+                                    expandableListAdapter.notifyDataSetChanged();
                                 }
                             }
                         } else {
@@ -162,17 +282,6 @@ public class FollowedListFragment extends ListFragment implements FirebaseAuth.A
                         swipeRefreshLayout.setRefreshing(false);
                     }
                 });
-    }
-
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        ListItem listItem = (ListItem) l.getItemAtPosition(position);
-        Log.d(TAG_FOLLOWED_LIST_FRAGMENT, listItem.getName());
-
-        Intent intent = new Intent(getActivity(), SelectGiftActivity.class);
-        intent.putExtra("list", listItem);
-        startActivity(intent);
     }
 
     @Override
@@ -188,7 +297,7 @@ public class FollowedListFragment extends ListFragment implements FirebaseAuth.A
     public void onRefresh() {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null){
-            listAdapter.clear();
+            expandableListAdapter.clear();
             loadFollowedLists();
         }
     }
