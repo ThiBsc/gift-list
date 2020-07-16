@@ -28,9 +28,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.ListFragment;
@@ -182,8 +179,11 @@ public class MyListFragment extends ListFragment implements FirebaseAuth.AuthSta
             }
             if (found){
                 // Remove the last
+                ListItem new_listitem = listAdapter.getItem(idx);
+                new_listitem.setGifts(list.getGifts());
                 listAdapter.remove(list);
-                listAdapter.insert(list, idx);
+                listAdapter.insert(new_listitem, idx);
+                updateUserList(new_listitem);
             } else {
                 //list.setId(String.format("notsynchronized#%d", listAdapter.getCount()));
                 addUserList(list);
@@ -230,5 +230,33 @@ public class MyListFragment extends ListFragment implements FirebaseAuth.AuthSta
                 }
             }
         });
+    }
+
+    public void updateUserList(final ListItem li){
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        final FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        final DocumentReference userRef = db.collection("users").document(firebaseUser.getUid());
+
+        db.collection("lists")
+                .whereEqualTo("id", li.getId())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Log.d("FOLLOWED LIST", "Success: " + task.getResult().size());
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                ListItem item = document.toObject(ListItem.class);
+                                DocumentReference doc_ref = db.collection("lists").document(document.getId());
+                                doc_ref.set(li, SetOptions.merge());
+                            }
+                        } else {
+                            // Can't arrive, just a no result in the if statement
+                            //Log.d("FOLLOWED LIST", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
     }
 }

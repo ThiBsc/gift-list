@@ -19,8 +19,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
@@ -47,6 +50,7 @@ public class FollowedListFragment extends Fragment implements FirebaseAuth.AuthS
     private SwipeRefreshLayout swipeRefreshLayout;
     private FloatingActionButton followListButton;
     private FirebaseAuth mAuth;
+    private static boolean snapshotConnected = false;
 
     public static FollowedListFragment newInstance(){
         return new FollowedListFragment();
@@ -110,6 +114,40 @@ public class FollowedListFragment extends Fragment implements FirebaseAuth.AuthS
 
         mAuth = FirebaseAuth.getInstance();
         mAuth.addAuthStateListener(this);
+
+        // Connect a listener for all change in the followed lists
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        if (firebaseUser != null) {
+            DocumentReference userRef = db.collection("users").document(firebaseUser.getUid());
+
+            db.collection("lists")
+                    .whereArrayContains("followers", userRef)
+                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                            if (e != null) {
+                                Log.w(TAG_FOLLOWED_LIST_FRAGMENT, "Listen failed.", e);
+                                return;
+                            }
+
+                            if (snapshotConnected) {
+                                for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                                    ListItem item = doc.getDocument().toObject(ListItem.class);
+                                    if (expandableListAdapter.contains(item)) {
+                                        expandableListAdapter.replaceList(expandableListAdapter.getListPos(item), item);
+                                    } else {
+                                        expandableListAdapter.addList(item);
+                                    }
+                                    expandableListAdapter.notifyDataSetChanged();
+                                }
+                            } else {
+                                // First run
+                                snapshotConnected = true;
+                            }
+                        }
+                    });
+        }
     }
 
     @Override
@@ -204,9 +242,6 @@ public class FollowedListFragment extends Fragment implements FirebaseAuth.AuthS
 
                                 gifts.put("gifts", new_giftlist);
                                 doc_ref.set(gifts, SetOptions.mergeFields("gifts"));
-
-                                // Update the view
-                                expandableListAdapter.notifyDataSetChanged();
                             }
                         } else {
                             // Can't arrive, just a no result in the if statement
@@ -265,14 +300,11 @@ public class FollowedListFragment extends Fragment implements FirebaseAuth.AuthS
                                     DocumentReference doc_ref = db.collection("lists").document(document.getId());
 
                                     Map<String, Object> followers = new HashMap<>();
-                                    ArrayList<DocumentReference> followers_ref = new ArrayList<DocumentReference>();
-                                    for (String f : item.getFollowers()){
-                                        followers_ref.add(db.collection("users").document(f.split("/")[1]));
-                                    }
-                                    followers.put("followers", followers_ref);
+                                    followers.put("followers", item.getFollowers());
                                     doc_ref.set(followers, SetOptions.mergeFields("followers"));
-                                    expandableListAdapter.addList(item);
-                                    expandableListAdapter.notifyDataSetChanged();
+                                    // The two following line are useless due to the snapshot listener in the onCreate()
+                                    //expandableListAdapter.addList(item);
+                                    //expandableListAdapter.notifyDataSetChanged();
                                 }
                             }
                         } else {

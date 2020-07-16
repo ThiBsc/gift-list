@@ -1,7 +1,5 @@
 package com.thibsc.giftlist;
 
-import com.google.firebase.firestore.DocumentReference;
-
 import java.io.Serializable;
 import java.util.HashMap;
 

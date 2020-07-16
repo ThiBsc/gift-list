@@ -28,6 +28,18 @@ public class ExpandableListFollowedAdapter extends BaseExpandableListAdapter {
         lists.clear();
     }
 
+    public boolean contains(ListItem li){
+        return lists.contains(li);
+    }
+
+    public int getListPos(ListItem li){
+        return lists.indexOf(li);
+    }
+
+    public void replaceList(int pos, ListItem li){
+        lists.set(pos, li);
+    }
+
     @Override
     public int getGroupCount() {
         return lists.size();

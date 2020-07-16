@@ -80,8 +80,15 @@ public class ListItem implements Serializable {
         gifts.add(gift);
     }
 
-    public ArrayList<String> getFollowers() {
-        return followers;
+    public ArrayList<DocumentReference> getFollowers() {
+        ArrayList<DocumentReference> ref_followers = new ArrayList<>();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        for (String f : followers){
+            ref_followers.add(db.document(f));
+        }
+
+        return ref_followers;
     }
 
     public void setFollowers(ArrayList<DocumentReference> followers) {
